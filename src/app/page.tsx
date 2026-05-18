@@ -58,12 +58,6 @@ export default function Home() {
         <main className='relative flex-1 overflow-hidden'>
           <DotGrid />
           <section className='relative mx-auto flex max-w-6xl flex-col justify-center px-6 py-24 md:py-32'>
-            <Badge
-              variant='outline'
-              className='mb-8 w-fit border-cyan-400/40 bg-cyan-400/5 font-mono text-[0.7rem] tracking-wide text-cyan-300 uppercase'
-            >
-              Solo research project
-            </Badge>
             <h1 className='max-w-4xl text-5xl font-extrabold leading-[1.05] tracking-tight md:text-7xl'>
               Exploring{' '}
               <span className='bg-gradient-to-r from-cyan-300 to-cyan-500 bg-clip-text text-transparent'>

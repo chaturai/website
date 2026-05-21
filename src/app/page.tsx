@@ -1,8 +1,9 @@
 import Link from 'next/link'
-import { ArrowUpRight, Mail } from 'lucide-react'
+import { ArrowUpRight, Mail, Zap } from 'lucide-react'
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { Card, CardDescription, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 
 const CONTACT_EMAIL = 'hello@chatur.ai'
@@ -57,51 +58,154 @@ export default function Home() {
 
         <main className='relative flex-1 overflow-hidden'>
           <DotGrid />
+
+          {/* Hero */}
           <section className='relative mx-auto flex max-w-6xl flex-col justify-center px-6 py-24 md:py-32'>
-            <h1 className='max-w-4xl text-5xl font-extrabold leading-[1.05] tracking-tight md:text-7xl'>
-              Exploring{' '}
-              <span className='bg-gradient-to-r from-cyan-300 to-cyan-500 bg-clip-text text-transparent'>
-                alternate paths
-              </span>{' '}
-              to artificial intelligence.
-            </h1>
-            <p className='mt-8 max-w-2xl text-xl text-muted-foreground md:text-2xl'>
-              <Wordmark className='font-semibold text-foreground' /> is a solo
-              project. One person, one workshop, a small set of bets on how
-              machine intelligence might look different.
-            </p>
-            <p className='mt-5 max-w-2xl text-base text-muted-foreground/80'>
-              Most of the field is converging on a narrow set of recipes. This
-              project takes the opposite bet — that there are useful corners
-              left in symbolic reasoning, structured memory, ontologies, and
-              the human-shaped infrastructure around language models. The work
-              here is the result of poking at those corners and shipping what
-              survives.
-            </p>
+            <div className='max-w-4xl'>
+              <Badge
+                variant='outline'
+                className='mb-6 border-cyan-400/40 bg-cyan-400/5 font-mono text-[0.7rem] tracking-wide text-cyan-300 uppercase'
+              >
+                The infrastructure layer LLMs need
+              </Badge>
+              <h1 className='text-5xl font-extrabold leading-[1.05] tracking-tight md:text-7xl'>
+                Semantic memory and{' '}
+                <span className='bg-gradient-to-r from-cyan-300 to-cyan-500 bg-clip-text text-transparent'>
+                  structured reasoning
+                </span>
+                {' '}for AI agents.
+              </h1>
+              <p className='mt-8 max-w-2xl text-xl text-muted-foreground md:text-2xl'>
+                <Wordmark className='font-semibold text-foreground' /> builds infrastructure for AI systems that think differently. Starting with persistent memory, ontology authoring, and RDF-backed knowledge graphs.
+              </p>
+              <p className='mt-5 max-w-2xl text-base text-muted-foreground/80'>
+                While the field converges on narrow recipes, we're rebuilding on first principles. Symbolic reasoning. Structured memory. Semantic web standards. The infrastructure that makes agents actually learn.
+              </p>
 
-            <Separator className='my-12 max-w-md opacity-50' />
+              <div className='mt-10 flex flex-wrap items-center gap-3'>
+                <Button asChild size='lg' className='gap-2 bg-cyan-600 hover:bg-cyan-700'>
+                  <Link href={CORTEX_URL}>
+                    See Cortex in action
+                    <ArrowUpRight className='size-4' />
+                  </Link>
+                </Button>
+                <Button asChild size='lg' variant='outline' className='gap-2'>
+                  <a href={`mailto:${CONTACT_EMAIL}`}>
+                    <Mail className='size-4' />
+                    Get in touch
+                  </a>
+                </Button>
+              </div>
+            </div>
+          </section>
 
-            <div className='max-w-2xl'>
+          <Separator className='mx-auto max-w-6xl opacity-50' />
+
+          {/* What we're building */}
+          <section className='mx-auto max-w-6xl px-6 py-24'>
+            <div className='mb-8'>
               <p className='mb-3 font-mono text-xs uppercase tracking-wider text-cyan-400/80'>
-                Consulting & enquiries
+                Products
               </p>
+              <h2 className='text-3xl font-bold tracking-tight md:text-4xl'>
+                What&apos;s shipping now
+              </h2>
+            </div>
+            <div className='grid gap-6 md:grid-cols-1'>
+              <Link href={CORTEX_URL}>
+                <Card className='border-cyan-400/30 bg-card/50 hover:border-cyan-400/60 hover:bg-card/80 transition-all cursor-pointer'>
+                  <div className='flex items-start justify-between px-6 pt-6'>
+                    <div>
+                      <div className='flex items-center gap-2 mb-3'>
+                        <CardTitle className='text-xl'>Cortex</CardTitle>
+                        <Badge
+                          variant='outline'
+                          className='bg-green-400/10 text-green-400 border-green-400/30'
+                        >
+                          Live
+                        </Badge>
+                      </div>
+                      <CardDescription className='text-base text-muted-foreground'>
+                        Persistent semantic memory for Claude. Built on Apache Jena TDB2, exposed via MCP. Runs entirely on your machine.
+                      </CardDescription>
+                      <div className='mt-4 flex flex-wrap gap-2'>
+                        <Badge variant='secondary' className='text-[0.7rem]'>Kotlin</Badge>
+                        <Badge variant='secondary' className='text-[0.7rem]'>Apache Jena</Badge>
+                        <Badge variant='secondary' className='text-[0.7rem]'>SPARQL 1.1</Badge>
+                        <Badge variant='secondary' className='text-[0.7rem]'>RDF-star</Badge>
+                        <Badge variant='secondary' className='text-[0.7rem]'>GraalVM native</Badge>
+                      </div>
+                    </div>
+                    <Zap className='size-8 text-cyan-400 flex-shrink-0' />
+                  </div>
+                </Card>
+              </Link>
+            </div>
+          </section>
+
+          <Separator className='mx-auto max-w-6xl opacity-50' />
+
+          {/* Philosophy */}
+          <section className='mx-auto max-w-6xl px-6 py-24'>
+            <div className='mb-14 max-w-3xl'>
+              <p className='mb-3 font-mono text-xs uppercase tracking-wider text-cyan-400/80'>
+                Our thesis
+              </p>
+              <h2 className='text-3xl font-bold tracking-tight md:text-4xl'>
+                Rethinking AI infrastructure
+              </h2>
+            </div>
+            <div className='grid gap-10 md:grid-cols-2'>
+              <div>
+                <h3 className='mb-4 text-base font-semibold uppercase tracking-wider text-cyan-400'>Problem</h3>
+                <p className='text-muted-foreground'>
+                  LLMs forget. Every session starts from zero. No continuity. No learning. No long-term reasoning. A system that can't remember isn't intelligent—it's just stateless.
+                </p>
+              </div>
+              <div>
+                <h3 className='mb-4 text-base font-semibold uppercase tracking-wider text-cyan-400'>Our answer</h3>
+                <p className='text-muted-foreground'>
+                  You author schemas—OWL ontologies declaring what's worth remembering. Cortex extracts facts, stores them in an RDF graph, and injects relevant context on every prompt. Memory you can reason about.
+                </p>
+              </div>
+              <div>
+                <h3 className='mb-4 text-base font-semibold uppercase tracking-wider text-cyan-400'>Why it matters</h3>
+                <p className='text-muted-foreground'>
+                  Symbolic reasoning isn't dead—it's misunderstood. Combine it with LLMs and you get agents that actually learn. Systems that carry knowledge forward. Continuity.
+                </p>
+              </div>
+              <div>
+                <h3 className='mb-4 text-base font-semibold uppercase tracking-wider text-cyan-400'>Principles</h3>
+                <ul className='space-y-2 text-muted-foreground'>
+                  <li>• <strong>Local first</strong> — your data stays on your machine</li>
+                  <li>• <strong>Explicit</strong> — only facts you declare, never hallucinations</li>
+                  <li>• <strong>Standards</strong> — W3C RDF, SPARQL, SHACL, OWL</li>
+                  <li>• <strong>Queryable</strong> — reason over your memory programmatically</li>
+                </ul>
+              </div>
+            </div>
+          </section>
+
+          <Separator className='mx-auto max-w-6xl opacity-50' />
+
+          {/* Contact */}
+          <section className='mx-auto max-w-6xl px-6 py-24'>
+            <div className='max-w-3xl'>
+              <p className='mb-3 font-mono text-xs uppercase tracking-wider text-cyan-400/80'>
+                Partnership & collaboration
+              </p>
+              <h2 className='mb-6 text-3xl font-bold tracking-tight md:text-4xl'>
+                Work with us
+              </h2>
               <p className='text-muted-foreground'>
-                Open to consulting work, collaborations, and research
-                conversations around knowledge graphs, agentic systems, and
-                applied AI. Reach out directly — every email gets a reply.
+                We're building something new. If you're working on knowledge graphs, agentic systems, semantic infrastructure, or applied AI—let's talk. Consulting, collaborations, research partnerships. Every inquiry gets a reply.
               </p>
-              <div className='mt-7 flex flex-wrap items-center gap-3'>
+              <div className='mt-8 flex flex-wrap items-center gap-3'>
                 <Button asChild size='lg' className='gap-2'>
                   <a href={`mailto:${CONTACT_EMAIL}`}>
                     <Mail className='size-4' />
                     {CONTACT_EMAIL}
                   </a>
-                </Button>
-                <Button asChild size='lg' variant='outline' className='gap-2'>
-                  <Link href={CORTEX_URL}>
-                    See what&apos;s shipping
-                    <ArrowUpRight className='size-4' />
-                  </Link>
                 </Button>
               </div>
             </div>

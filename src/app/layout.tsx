@@ -14,8 +14,8 @@ const geistMono = localFont({
 })
 
 export const metadata: Metadata = {
-  title: 'chatur.ai',
-  description: 'Humanist AI',
+  title: 'chatur.ai — Semantic memory and AI infrastructure',
+  description: 'Building the infrastructure layer for semantic memory and structured reasoning in AI systems. Starting with Cortex: persistent knowledge graphs for Claude.',
 }
 
 export default function RootLayout({

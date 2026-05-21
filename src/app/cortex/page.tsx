@@ -1,9 +1,12 @@
 import Link from 'next/link'
 import {
-  Brain,
+  Code,
   Database,
+  GitBranch,
   Layers,
+  Zap,
   Moon,
+  Network,
   Search,
   ShieldCheck,
   Sparkles,
@@ -36,38 +39,77 @@ import {
 } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 
-const GITHUB_URL = 'https://github.com/chaturai/cortex-plugin'
+const GITHUB_URL = 'https://github.com/chaturai/cortex'
 
-const FEATURES = [
+const MCP_TOOLS = [
   {
-    icon: Brain,
-    title: 'Persistent memory across sessions',
-    body: 'Facts you discuss stay queryable forever. Cortex injects what matters into every new prompt — silently, behind the scenes.',
+    name: 'createNamedGraph',
+    type: 'tool',
+    description: 'Creates a new named graph in the dataset.',
+    params: 'graphIri: String',
   },
   {
-    icon: Sparkles,
-    title: 'Interactive ontology authoring',
-    body: 'The /define-concept skill walks you through writing an OWL ontology in plain conversation. No semantic-web background required.',
+    name: 'loadTurtle',
+    type: 'tool',
+    description: 'Parses and loads Turtle RDF data. Every triple gets per-triple RDF-star provenance tracking.',
+    params: 'graphIri: String, turtleData: String',
   },
   {
-    icon: Workflow,
-    title: 'Automatic fact extraction',
-    body: 'A per-turn glean and an end-of-session ingest pull explicit facts out of conversations and write them to the graph with provenance.',
+    name: 'query',
+    type: 'tool',
+    description: 'Executes SPARQL 1.1 queries (SELECT, CONSTRUCT, ASK, UPDATE).',
+    params: 'sparqlQuery: String, graphIri?: String',
+  },
+  {
+    name: 'validateTurtle',
+    type: 'tool',
+    description: 'Validates Turtle syntax and well-formedness without writing.',
+    params: 'turtleData: String',
+  },
+  {
+    name: 'validateInstances',
+    type: 'tool',
+    description: 'Runs SHACL shape validation against instances in a graph.',
+    params: 'graphIri: String, shapesGraphIri?: String',
+  },
+  {
+    name: 'cortex://graphs',
+    type: 'resource',
+    description: 'Read-only JSON catalog of all named graphs, metadata, and triple counts.',
+    params: 'none',
+  },
+] as const
+
+const TECH_FEATURES = [
+  {
+    icon: Network,
+    title: 'RDF-star per-triple provenance',
+    body: 'Every triple written to the dataset gets &lt;&lt; s p o &gt;&gt; prov:wasGeneratedBy <activity>. Know the source, timestamp, and derivation of every fact.',
+  },
+  {
+    icon: Code,
+    title: 'SPARQL 1.1 & RDF inference',
+    body: 'Execute complex SELECT, CONSTRUCT, and UPDATE queries. Forward-chaining rules with Jena GenericRuleReasoner for derived graphs.',
   },
   {
     icon: ShieldCheck,
-    title: 'SHACL validation & repair',
-    body: 'Add shapes for cardinality, datatypes, regex patterns, and value lists. A repair agent diagnoses every failure before it corrupts the graph.',
+    title: 'SHACL shape validation',
+    body: 'Define cardinality constraints, datatypes, regex patterns, value lists. A repair agent diagnoses and suggests fixes before corrupting the graph.',
   },
   {
-    icon: Search,
-    title: 'SPARQL-powered queries',
-    body: 'The /query-cortex skill discovers ontologies, surfaces templates, and helps you compose queries against the full knowledge graph.',
+    icon: Zap,
+    title: 'GraalVM native binary',
+    body: 'Instant startup, 10x lower memory footprint, zero runtime dependencies. One cortex binary serves any TDB2 dataset directory.',
+  },
+  {
+    icon: GitBranch,
+    title: 'Transaction-safe with metrics',
+    body: 'Every read/write wrapped in Txn.calculateRead/executeWrite. Prometheus `/actuator/prometheus` and triples-over-time dashboard.',
   },
   {
     icon: Database,
-    title: 'Zero-config local infrastructure',
-    body: 'Apache Fuseki and cortex-server come bundled in a Docker Compose stack. Your data lives in ~/.cortex — local, portable, yours.',
+    title: 'Local-first TDB2 persistence',
+    body: 'Apache Jena TDB2 dataset stored at ~/cortex or any configured path. Automatic compaction and backup jobs via Quartz.',
   },
 ] as const
 
@@ -75,22 +117,22 @@ const COMING_SOON = [
   {
     icon: Layers,
     title: 'Interactive Memory UI',
-    body: 'A web console for browsing your knowledge graph, running visual SPARQL queries, and inspecting ontologies — with admin tooling for managing concepts, instances, and validation rules in the browser.',
+    body: 'React web console for browsing graphs, running visual SPARQL queries, inspecting ontologies, and managing concepts in the browser.',
   },
   {
     icon: Moon,
     title: 'Learn while you sleep',
-    body: 'Background memory defragmentation reconciles duplicate entities, merges aliases, and tightens the graph between sessions — so the longer you use cortex, the sharper its recall gets.',
+    body: 'Background memory defragmentation reconciles duplicate entities, merges aliases, tightens the graph between sessions.',
   },
   {
     icon: Wrench,
     title: 'Tiered memory & planned obsolescence',
-    body: 'Hot, warm, and cold tiers with explicit retention policies. Facts age out gracefully when they stop being relevant, keeping the working set fast and the long-term archive intact.',
+    body: 'Hot, warm, and cold tiers with retention policies. Facts age gracefully when they become irrelevant.',
   },
   {
     icon: GithubIcon,
     title: 'Fully open source',
-    body: 'The plugin is already MIT-licensed. cortex-server, the upcoming UI, and the rest of the stack will follow — all of cortex will be open source once it stabilizes.',
+    body: 'cortex-server and all infrastructure will be open source once stabilized. Plugin is already MIT-licensed.',
   },
 ] as const
 
@@ -197,31 +239,37 @@ export default function CortexPage() {
               variant='outline'
               className='mb-6 border-cyan-400/40 bg-cyan-400/5 font-mono text-[0.7rem] tracking-wide text-cyan-300 uppercase'
             >
-              Claude Code plugin · v0.0.1
+              Claude Code plugin · v0.1.0
             </Badge>
             <h1 className='text-5xl font-extrabold leading-[1.05] tracking-tight md:text-7xl'>
-              Introducing{' '}
               <span className='bg-gradient-to-r from-cyan-300 to-cyan-500 bg-clip-text text-transparent'>
                 Cortex
               </span>
             </h1>
             <p className='mt-6 max-w-xl text-xl text-muted-foreground md:text-2xl'>
-              Persistent memory for Claude, built on a knowledge graph you
-              author.
+              Persistent semantic memory for Claude. Built on W3C standards. Runs on your machine.
             </p>
             <p className='mt-5 max-w-xl text-base text-muted-foreground/80'>
-              Claude forgets everything between sessions. Cortex fixes that —
-              you declare the kinds of things worth remembering, and it extracts
-              the facts, persists them in a queryable graph, and surfaces what
-              matters on every new prompt.
+              Apache Jena TDB2 triplestore with SPARQL 1.1, SHACL validation, RDF-star provenance, and forward inference. Exposed via MCP. Compiled to a GraalVM native binary.
             </p>
+            <div className='mt-8 flex flex-wrap gap-2'>
+              <Badge variant='outline' className='bg-cyan-400/10 text-cyan-300 border-cyan-400/30 font-mono text-xs'>Kotlin</Badge>
+              <Badge variant='outline' className='bg-cyan-400/10 text-cyan-300 border-cyan-400/30 font-mono text-xs'>JDK 21</Badge>
+              <Badge variant='outline' className='bg-cyan-400/10 text-cyan-300 border-cyan-400/30 font-mono text-xs'>Apache Jena 5</Badge>
+              <Badge variant='outline' className='bg-cyan-400/10 text-cyan-300 border-cyan-400/30 font-mono text-xs'>GraalVM Native</Badge>
+              <Badge variant='outline' className='bg-cyan-400/10 text-cyan-300 border-cyan-400/30 font-mono text-xs'>Spring Boot 3.5</Badge>
+              <Badge variant='outline' className='bg-cyan-400/10 text-cyan-300 border-cyan-400/30 font-mono text-xs'>SPARQL 1.1</Badge>
+              <Badge variant='outline' className='bg-cyan-400/10 text-cyan-300 border-cyan-400/30 font-mono text-xs'>SHACL</Badge>
+              <Badge variant='outline' className='bg-cyan-400/10 text-cyan-300 border-cyan-400/30 font-mono text-xs'>RDF-star</Badge>
+              <Badge variant='outline' className='bg-cyan-400/10 text-cyan-300 border-cyan-400/30 font-mono text-xs'>MCP</Badge>
+            </div>
             <div className='mt-9 flex flex-wrap items-center gap-3'>
               <Button asChild size='lg' className='gap-2'>
-                <a href='#install'>Install the plugin</a>
+                <a href='#install'>Install now</a>
               </Button>
               <Button asChild size='lg' variant='outline' className='gap-2'>
                 <a href={GITHUB_URL} target='_blank' rel='noreferrer'>
-                  Read the docs
+                  View source
                 </a>
               </Button>
             </div>
@@ -234,59 +282,105 @@ export default function CortexPage() {
 
       <Separator className='mx-auto max-w-6xl opacity-50' />
 
+      {/* Architecture */}
       <section className='mx-auto max-w-6xl px-6 py-24'>
         <div className='mb-14 max-w-3xl'>
           <p className='mb-3 font-mono text-xs uppercase tracking-wider text-cyan-400/80'>
-            Philosophy
+            Architecture
           </p>
           <h2 className='text-3xl font-bold tracking-tight md:text-4xl'>
-            A memory you can reason about
+            Three interfaces, one knowledge graph
           </h2>
         </div>
-        <div className='grid gap-10 md:grid-cols-3'>
-          <div>
-            <h3 className='mb-3 text-lg font-semibold'>The problem</h3>
-            <p className='text-muted-foreground'>
-              Every Claude session starts from zero. You re-explain your
-              domain, your teammates, your codebase. Insights surface, then
-              vanish the moment the window closes — no recall, no continuity,
-              no compounding.
-            </p>
-          </div>
-          <div>
-            <h3 className='mb-3 text-lg font-semibold'>The approach</h3>
-            <p className='text-muted-foreground'>
-              You author OWL ontologies declaring{' '}
-              <em>what kinds of things</em> deserve memory. Cortex watches your
-              conversations, extracts matching facts, stores them in an RDF
-              graph, and silently injects relevant context on every new prompt.
-            </p>
-          </div>
-          <div>
-            <h3 className='mb-3 text-lg font-semibold'>The principles</h3>
-            <p className='text-muted-foreground'>
-              Only explicit facts — never inferences. User-authored schemas —
-              you control the vocabulary. Idempotent storage — re-ingesting is
-              a no-op. Local-first — your data lives in{' '}
-              <code className='font-mono text-foreground/80'>~/.cortex</code>.
-            </p>
-          </div>
+        <div className='grid gap-8 md:grid-cols-3'>
+          <Card className='border-border/60 bg-card/40'>
+            <CardHeader>
+              <Database className='mb-3 size-6 text-cyan-400' />
+              <CardTitle className='text-base'>TDB2 Persistence</CardTitle>
+              <CardDescription className='leading-relaxed'>
+                Apache Jena TDB2 dataset. Configurable location. Transaction-safe reads/writes. Automatic compaction and backup.
+              </CardDescription>
+            </CardHeader>
+          </Card>
+          <Card className='border-border/60 bg-card/40'>
+            <CardHeader>
+              <Network className='mb-3 size-6 text-cyan-400' />
+              <CardTitle className='text-base'>MCP Surface</CardTitle>
+              <CardDescription className='leading-relaxed'>
+                5 tools + 1 resource. SSE + WebSocket transport. Spring AI MCP server. Integrated with Claude Code.
+              </CardDescription>
+            </CardHeader>
+          </Card>
+          <Card className='border-border/60 bg-card/40'>
+            <CardHeader>
+              <Code className='mb-3 size-6 text-cyan-400' />
+              <CardTitle className='text-base'>Web UI</CardTitle>
+              <CardDescription className='leading-relaxed'>
+                Thymeleaf server pages. React dashboard. D3 triples-over-time chart. Full graph admin and search.
+              </CardDescription>
+            </CardHeader>
+          </Card>
         </div>
       </section>
 
       <Separator className='mx-auto max-w-6xl opacity-50' />
 
+      {/* MCP Tools */}
       <section className='mx-auto max-w-6xl px-6 py-24'>
         <div className='mb-14 max-w-3xl'>
           <p className='mb-3 font-mono text-xs uppercase tracking-wider text-cyan-400/80'>
-            What&apos;s in the box
+            MCP Surface
           </p>
           <h2 className='text-3xl font-bold tracking-tight md:text-4xl'>
-            Six pieces, working in concert
+            5 tools + 1 resource
+          </h2>
+          <p className='mt-4 text-muted-foreground'>
+            The complete MCP surface for building and querying semantic memory.
+          </p>
+        </div>
+        <div className='grid gap-4 md:grid-cols-2'>
+          {MCP_TOOLS.map(({ name, type, description, params }) => (
+            <Card key={name} className='border-cyan-400/30 bg-cyan-400/5'>
+              <CardHeader>
+                <div className='flex items-center gap-3 mb-3'>
+                  <code className='px-2 py-1 rounded bg-background text-cyan-300 font-mono text-sm'>
+                    {name}
+                  </code>
+                  <Badge
+                    variant='outline'
+                    className='text-[0.7rem] font-mono'
+                  >
+                    {type}
+                  </Badge>
+                </div>
+                <CardDescription className='leading-relaxed'>
+                  {description}
+                </CardDescription>
+                {params !== 'none' && (
+                  <div className='mt-3 pt-3 border-t border-cyan-400/20'>
+                    <p className='text-xs font-mono text-cyan-400/60'>{params}</p>
+                  </div>
+                )}
+              </CardHeader>
+            </Card>
+          ))}
+        </div>
+      </section>
+
+      <Separator className='mx-auto max-w-6xl opacity-50' />
+
+      {/* Technical features */}
+      <section className='mx-auto max-w-6xl px-6 py-24'>
+        <div className='mb-14 max-w-3xl'>
+          <p className='mb-3 font-mono text-xs uppercase tracking-wider text-cyan-400/80'>
+            Technical depth
+          </p>
+          <h2 className='text-3xl font-bold tracking-tight md:text-4xl'>
+            Built for production reasoning
           </h2>
         </div>
         <div className='grid gap-5 md:grid-cols-2 lg:grid-cols-3'>
-          {FEATURES.map(({ icon: Icon, title, body }) => (
+          {TECH_FEATURES.map(({ icon: Icon, title, body }) => (
             <Card
               key={title}
               className='border-border/60 bg-card/40 transition-colors hover:border-cyan-400/40 hover:bg-card/60'
@@ -307,6 +401,125 @@ export default function CortexPage() {
 
       <Separator className='mx-auto max-w-6xl opacity-50' />
 
+      {/* Claude skills */}
+      <section className='mx-auto max-w-6xl px-6 py-24'>
+        <div className='mb-14 max-w-3xl'>
+          <p className='mb-3 font-mono text-xs uppercase tracking-wider text-cyan-400/80'>
+            Claude skills
+          </p>
+          <h2 className='text-3xl font-bold tracking-tight md:text-4xl'>
+            Four slash commands
+          </h2>
+          <p className='mt-4 text-muted-foreground'>
+            Build and query your knowledge graph through natural conversation.
+          </p>
+        </div>
+        <div className='grid gap-6 md:grid-cols-2'>
+          <Card className='border-border/60 bg-card/40'>
+            <CardHeader>
+              <div className='mb-3 inline-block px-3 py-1.5 rounded bg-cyan-400/10 border border-cyan-400/30 font-mono text-sm text-cyan-300'>/define-concept</div>
+              <CardTitle className='text-base'>Define Concept</CardTitle>
+              <CardDescription className='leading-relaxed'>
+                Author OWL ontologies in plain conversation. Declare classes, properties, cardinality, and validation rules.
+              </CardDescription>
+            </CardHeader>
+          </Card>
+          <Card className='border-border/60 bg-card/40'>
+            <CardHeader>
+              <div className='mb-3 inline-block px-3 py-1.5 rounded bg-cyan-400/10 border border-cyan-400/30 font-mono text-sm text-cyan-300'>/refine-concept</div>
+              <CardTitle className='text-base'>Refine Concept</CardTitle>
+              <CardDescription className='leading-relaxed'>
+                Evolve your schema. Add or update SHACL shapes and constraints as your model matures.
+              </CardDescription>
+            </CardHeader>
+          </Card>
+          <Card className='border-border/60 bg-card/40'>
+            <CardHeader>
+              <div className='mb-3 inline-block px-3 py-1.5 rounded bg-cyan-400/10 border border-cyan-400/30 font-mono text-sm text-cyan-300'>/add-instances</div>
+              <CardTitle className='text-base'>Add Instances</CardTitle>
+              <CardDescription className='leading-relaxed'>
+                Populate the graph. Load data from prose, CSV, JSON, or natural language descriptions.
+              </CardDescription>
+            </CardHeader>
+          </Card>
+          <Card className='border-border/60 bg-card/40'>
+            <CardHeader>
+              <div className='mb-3 inline-block px-3 py-1.5 rounded bg-cyan-400/10 border border-cyan-400/30 font-mono text-sm text-cyan-300'>/query-cortex</div>
+              <CardTitle className='text-base'>Query Cortex</CardTitle>
+              <CardDescription className='leading-relaxed'>
+                Build and execute SPARQL queries. Discover ontologies, surface templates, reason over your memory.
+              </CardDescription>
+            </CardHeader>
+          </Card>
+        </div>
+      </section>
+
+      <Separator className='mx-auto max-w-6xl opacity-50' />
+
+      {/* Philosophy */}
+      <section className='mx-auto max-w-6xl px-6 py-24'>
+        <div className='mb-14 max-w-3xl'>
+          <p className='mb-3 font-mono text-xs uppercase tracking-wider text-cyan-400/80'>
+            Philosophy
+          </p>
+          <h2 className='text-3xl font-bold tracking-tight md:text-4xl'>
+            A memory you can reason about
+          </h2>
+        </div>
+        <div className='grid gap-10 md:grid-cols-3'>
+          <div>
+            <h3 className='mb-3 text-lg font-semibold'>The problem</h3>
+            <p className='text-muted-foreground'>
+              Every Claude session starts from zero. You re-explain your domain, your teammates, your codebase. Insights surface, then vanish the moment the window closes — no recall, no continuity, no compounding.
+            </p>
+          </div>
+          <div>
+            <h3 className='mb-3 text-lg font-semibold'>The approach</h3>
+            <p className='text-muted-foreground'>
+              You author OWL ontologies declaring{' '}
+              <em>what kinds of things</em> deserve memory. Cortex watches your conversations, extracts matching facts, stores them in an RDF graph, and silently injects relevant context on every new prompt.
+            </p>
+          </div>
+          <div>
+            <h3 className='mb-3 text-lg font-semibold'>The principles</h3>
+            <p className='text-muted-foreground'>
+              Only explicit facts — never inferences. User-authored schemas — you control the vocabulary. Idempotent storage — re-ingesting is a no-op. Local-first — your data lives in{' '}
+              <code className='font-mono text-foreground/80'>~/.cortex</code>.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <Separator className='mx-auto max-w-6xl opacity-50' />
+
+      {/* Install */}
+      <section id='install' className='mx-auto max-w-6xl px-6 py-24'>
+        <div className='mb-10 max-w-3xl'>
+          <p className='mb-3 font-mono text-xs uppercase tracking-wider text-cyan-400/80'>
+            Get started
+          </p>
+          <h2 className='text-3xl font-bold tracking-tight md:text-4xl'>
+            Two commands. That&apos;s it.
+          </h2>
+          <p className='mt-4 text-muted-foreground'>
+            Requires Claude Code and Docker. The cortex-server will start on port 8080.
+          </p>
+        </div>
+        <pre className='overflow-x-auto rounded-lg border border-border/60 bg-muted/30 p-6 font-mono text-sm leading-relaxed text-foreground/90'>
+          <span className='text-muted-foreground'>
+            # add the chatur.ai plugin marketplace
+          </span>
+          {'\n'}claude plugin marketplace add chaturai/cortex
+          {'\n'}
+          {'\n'}
+          <span className='text-muted-foreground'># install cortex</span>
+          {'\n'}claude plugin install cortex@chaturai
+        </pre>
+      </section>
+
+      <Separator className='mx-auto max-w-6xl opacity-50' />
+
+      {/* Roadmap */}
       <section className='mx-auto max-w-6xl px-6 py-24'>
         <div className='mb-14 max-w-3xl'>
           <p className='mb-3 font-mono text-xs uppercase tracking-wider text-cyan-400/80'>
@@ -316,8 +529,7 @@ export default function CortexPage() {
             On the roadmap
           </h2>
           <p className='mt-4 text-muted-foreground'>
-            Cortex is early. Here&apos;s what we&apos;re building next — and
-            what you can expect as the project matures.
+            Cortex is early. Here&apos;s what we&apos;re building next.
           </p>
         </div>
         <div className='grid gap-5 md:grid-cols-2'>
@@ -348,33 +560,6 @@ export default function CortexPage() {
         </div>
       </section>
 
-      <Separator className='mx-auto max-w-6xl opacity-50' />
-
-      <section id='install' className='mx-auto max-w-6xl px-6 py-24'>
-        <div className='mb-10 max-w-3xl'>
-          <p className='mb-3 font-mono text-xs uppercase tracking-wider text-cyan-400/80'>
-            Get started
-          </p>
-          <h2 className='text-3xl font-bold tracking-tight md:text-4xl'>
-            Two commands. That&apos;s it.
-          </h2>
-          <p className='mt-4 text-muted-foreground'>
-            Requires Claude Code and Docker. The plugin will start the local
-            Fuseki + cortex-server stack on first launch.
-          </p>
-        </div>
-        <pre className='overflow-x-auto rounded-lg border border-border/60 bg-muted/30 p-6 font-mono text-sm leading-relaxed text-foreground/90'>
-          <span className='text-muted-foreground'>
-            # add the chatur.ai plugin marketplace
-          </span>
-          {'\n'}claude plugin marketplace add chaturai/cortex-plugin
-          {'\n'}
-          {'\n'}
-          <span className='text-muted-foreground'># install cortex</span>
-          {'\n'}claude plugin install cortex@chaturai-cortex
-        </pre>
-      </section>
-
       <footer className='border-t border-border/60'>
         <div className='mx-auto flex max-w-6xl flex-col items-start justify-between gap-4 px-6 py-10 text-sm text-muted-foreground md:flex-row md:items-center'>
           <div>
@@ -388,7 +573,7 @@ export default function CortexPage() {
             className='inline-flex items-center gap-2 hover:text-foreground transition-colors'
           >
             <GithubIcon className='size-4' />
-            github.com/chaturai/cortex-plugin
+            github.com/chaturai/cortex
           </a>
         </div>
       </footer>

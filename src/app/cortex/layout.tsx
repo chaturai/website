@@ -1,9 +1,8 @@
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Cortex — Persistent memory for Claude',
-  description:
-    'A Claude Code plugin that gives Claude persistent memory across sessions, built on user-authored OWL ontologies and an RDF knowledge graph.',
+  title: 'Cortex — Semantic memory for Claude | chatur.ai',
+  description: 'Persistent semantic memory for Claude. Built on Apache Jena TDB2, SPARQL 1.1, SHACL validation, and RDF-star provenance. Compiled to a GraalVM native binary.',
 }
 
 export default function CortexLayout({
